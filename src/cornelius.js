@@ -8,68 +8,70 @@
  * Date: 2013-06-04
  */
 
-;(function(globals) {
+(function (globals) {
+    'use strict';
+
     var corneliusDefaults = {
-        monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July',
-                     'August', 'September', 'October', 'November', 'December'],
+            monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+                'August', 'September', 'October', 'November', 'December'],
 
-        shortMonthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
-                          'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            shortMonthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+                'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 
-        repeatLevels: {
-            'low': [0, 10],
-            'medium-low': [10, 20],
-            'medium': [20, 30],
-            'medium-high': [30, 40],
-            'high': [40, 60],
-            'hot': [60, 70],
-            'extra-hot': [70, 100]
-        },
+            repeatLevels: {
+                'low': [0, 10],
+                'medium-low': [10, 20],
+                'medium': [20, 30],
+                'medium-high': [30, 40],
+                'high': [40, 60],
+                'hot': [60, 70],
+                'extra-hot': [70, 100]
+            },
 
-        labels: {
-            time: 'Time',
-            people: 'People',
-            weekOf: 'Week of'
-        },
+            labels: {
+                time: 'Time',
+                people: 'People',
+                weekOf: 'Week of'
+            },
 
-        timeInterval: 'monthly',
+            timeInterval: 'monthly',
 
-        drawEmptyCells: true,
+            drawEmptyCells: true,
 
-        rawNumberOnHover: true,
+            rawNumberOnHover: true,
 
-        displayAbsoluteValues: false,
+            displayAbsoluteValues: false,
 
-        initialIntervalNumber: 1,
+            initialIntervalNumber: 1,
 
-        classPrefix: 'cornelius-',
+            classPrefix: 'cornelius-',
 
-        formatHeaderLabel: function(i) {
-            return (this.initialIntervalNumber - 1 + i).toString();
-        },
+            formatHeaderLabel: function (i) {
+                return (this.initialIntervalNumber - 1 + i).toString();
+            },
 
-        formatDailyLabel: function(date, i) {
-            date.setDate(date.getDate() + i);
-            return this.monthNames[date.getMonth()] + ' ' + date.getDate() + ', ' + getYear(date);
-        },
+            formatDailyLabel: function (date, i) {
+                date.setDate(date.getDate() + i);
+                return this.monthNames[date.getMonth()] + ' ' + date.getDate() + ', ' + getYear(date);
+            },
 
-        formatWeeklyLabel: function(date, i) {
-            date.setDate(date.getDate() + i * 7);
-            return this.labels.weekOf + ' ' + this.shortMonthNames[date.getMonth()] + ' ' +
+            formatWeeklyLabel: function (date, i) {
+                date.setDate(date.getDate() + i * 7);
+                return this.labels.weekOf + ' ' + this.shortMonthNames[date.getMonth()] + ' ' +
                     date.getDate() + ', ' + getYear(date);
+            },
+
+            formatMonthlyLabel: function (date, i) {
+                date.setMonth(date.getMonth() + i);
+                return this.monthNames[date.getMonth()] + ' ' + getYear(date);
+            },
+
+            formatYearlyLabel: function (date, i) {
+                return date.getYear() + 1900 + i;
+            }
         },
 
-        formatMonthlyLabel: function(date, i) {
-            date.setMonth(date.getMonth() + i);
-            return this.monthNames[date.getMonth()] + ' ' + getYear(date);
-        },
-
-        formatYearlyLabel: function(date, i) {
-            return date.getYear() + 1900 + i;
-        }
-    },
-
-    defaults = corneliusDefaults;
+        defaults = corneliusDefaults;
 
     function extend() {
         var target = arguments[0];
@@ -96,9 +98,10 @@
         return date.getFullYear ? date.getFullYear() : date.getYear() + 1900;
     }
 
-    var draw = function(cornelius, cohort, container) {
-        if (!cohort)    throw new Error ("Please provide the cohort data");
-        if (!container) throw new Error ("Please provide the cohort container");
+    var draw = function (cornelius, cohort, container) {
+        var className, title, opt;
+        if (!cohort)    throw new Error("Please provide the cohort data");
+        if (!container) throw new Error("Please provide the cohort container");
 
         var config = cornelius.config,
             initialDate = cornelius.initialDate;
@@ -147,12 +150,12 @@
             var th = create('tr'),
                 monthLength = data[0].length;
 
-            th.appendChild(create('th', { text: config.labels.time, className: 'time' }));
+            th.appendChild(create('th', {text: config.labels.time, className: 'time'}));
 
             for (var i = 0; i < monthLength; i++) {
                 if (i > config.maxColumns) break;
                 var text = i === 0 ? config.labels.people : config.formatHeaderLabel(i);
-                th.appendChild(create('th', { text: text, className: 'people' }));
+                th.appendChild(create('th', {text: text, className: 'people'}));
             }
             return th;
         }
@@ -181,7 +184,7 @@
 
                 startMonth = config.maxRows ? data.length - config.maxRows : 0,
 
-                formatPercentage = function(value, base) {
+                formatPercentage = function (value, base) {
                     if (isNumber(value) && base > 0) {
                         return (value / base * 100).toFixed(2);
                     } else if (isNumber(value)) {
@@ -189,7 +192,7 @@
                     }
                 },
 
-                classNameFor = function(value) {
+                classNameFor = function (value) {
                     var levels = config.repeatLevels,
                         floatValue = value && parseFloat(value),
                         highestLevel = null;
@@ -228,15 +231,15 @@
                         cellValue = j === 0 || config.displayAbsoluteValues ? value : formattedPercentage,
                         opts = {};
 
-                        if (!isEmpty(cellValue)) {
-                            opts = {
-                                text: cellValue,
-                                title: j > 0 && config.rawNumberOnHover ? value : null,
-                                className: j === 0 ? 'people' : classNameFor(formattedPercentage)
-                            };
-                        } else if (config.drawEmptyCells) {
-                            opts = { text: '-', className: 'empty' };
-                        }
+                    if (!isEmpty(cellValue)) {
+                        opts = {
+                            text: cellValue,
+                            title: j > 0 && config.rawNumberOnHover ? value : null,
+                            className: j === 0 ? 'people' : classNameFor(formattedPercentage)
+                        };
+                    } else if (config.drawEmptyCells) {
+                        opts = {text: '-', className: 'empty'};
+                    }
 
                     tr.appendChild(create('td', opts));
                 }
@@ -245,14 +248,14 @@
             return fragment;
         }
 
-        var mainContainer = create('div', { className: 'container' }),
-            table = create('table', { className: 'table' });
+        var mainContainer = create('div', {className: 'container'}),
+            table = create('table', {className: 'table'});
 
         table.appendChild(drawHeader(cohort));
         table.appendChild(drawCells(cohort));
 
         if ((title = config.title)) {
-            mainContainer.appendChild(create('div', { text: title, className: 'title' }));
+            mainContainer.appendChild(create('div', {text: title, className: 'title'}));
         }
         mainContainer.appendChild(table);
 
@@ -260,7 +263,8 @@
         container.appendChild(mainContainer);
     };
 
-    var Cornelius = function(opts) {
+    var Cornelius = function (opts) {
+        var initialDate;
         if (!(initialDate = opts.initialDate)) throw new Error('The initialDate is a required argument');
         delete opts.initialDate;
 
@@ -269,18 +273,18 @@
     };
 
     extend(Cornelius, {
-        getDefaults: function() {
+        getDefaults: function () {
             return defaults;
         },
 
-        setDefaults: function(def) {
+        setDefaults: function (def) {
             defaults = extend({}, corneliusDefaults, def);
         },
 
-        resetDefaults: function() {
+        resetDefaults: function () {
             defaults = corneliusDefaults;
         },
-        draw: function(options) {
+        draw: function (options) {
             var cornelius = new Cornelius(options);
             draw(cornelius, options.cohort, options.container);
             return options.container;
@@ -288,8 +292,8 @@
     });
 
     if (typeof globals.jQuery !== "undefined" && globals.jQuery !== null) {
-        globals.jQuery.fn.cornelius = function(options) {
-            return this.each(function() {
+        globals.jQuery.fn.cornelius = function (options) {
+            return this.each(function () {
                 options.container = this;
                 return Cornelius.draw(options);
             });
